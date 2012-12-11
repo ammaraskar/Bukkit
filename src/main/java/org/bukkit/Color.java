@@ -232,6 +232,56 @@ public final class Color implements ConfigurationSerializable {
         return getBlue() << 8 | getGreen() << 4 | getRed() << 0;
     }
 
+    /**
+     * Creates a new color with its RGB components changed as if it was dyed with the colors passed in, replicating
+     * vanilla workbench dyeing
+     *
+     * @param colors The DyeColors to dye with
+     * @return A new color with the changed rgb components
+     */
+    public Color dyeColor(DyeColor... colors) {
+        Validate.noNullElements(colors, "Colors cannot be null");
+
+        Color[] toPass = new Color[colors.length];
+        for (int i = 0; i < colors.length; i++) {
+            toPass[i] = colors[i].getColor();
+        }
+
+        return dyeColor(toPass);
+    }
+
+    /**
+     * Creates a new color with its RGB components changed as if it was dyed with the colors passed in, replicating
+     * vanilla workbench dyeing
+     *
+     * @param colors The colors to dye with
+     * @return A new color with the changed rgb components
+     */
+    public Color dyeColor(Color... colors) {
+        Validate.noNullElements(colors, "Colors cannot be null");
+
+        int totalRed = this.getRed();
+        int totalGreen = this.getGreen();
+        int totalBlue = this.getBlue();
+        int totalMax = Math.max(Math.max(totalRed, totalGreen), totalBlue);
+        for (Color color : colors) {
+            totalRed += color.getRed();
+            totalGreen += color.getGreen();
+            totalBlue += color.getBlue();
+            totalMax += Math.max(Math.max(color.getRed(), color.getGreen()), color.getBlue());
+        }
+
+        float averageRed = totalRed / (colors.length + 1);
+        float averageGreen = totalGreen / (colors.length + 1);
+        float averageBlue = totalBlue / (colors.length + 1);
+        float averageMax = totalMax / (colors.length + 1);
+
+        float maximumOfAverages = Math.max(Math.max(averageRed, averageGreen), averageBlue);
+        float gainFactor = averageMax / maximumOfAverages;
+
+        return Color.fromRGB((int) (averageRed * gainFactor), (int) (averageGreen * gainFactor), (int) (averageBlue * gainFactor));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Color)) {
