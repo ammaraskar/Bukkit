@@ -1,10 +1,6 @@
 package org.bukkit.command;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,7 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.util.StringUtil;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Command, which executes various tasks upon user input
@@ -24,6 +23,7 @@ public abstract class Command {
     private String label;
     private List<String> aliases;
     private List<String> activeAliases;
+    private List<SubCommand> subCommands;
     private CommandMap commandMap = null;
     protected String description = "";
     protected String usageMessage;
@@ -323,6 +323,30 @@ public abstract class Command {
     public Command setUsage(String usage) {
         this.usageMessage = usage;
         return this;
+    }
+
+    /**
+     * Adds a sub command to this command
+     *
+     * @param command The sub command to be added
+     */
+    public void addSubCommand(SubCommand command) {
+        Validate.notNull(command);
+        this.subCommands.add(command);
+    }
+
+    /**
+     * Remove sub command from this command
+     *
+     * @param command The sub command to be removed
+     */
+    public void removeSubCommand(SubCommand command) {
+        Validate.notNull(command);
+        this.subCommands.remove(command);
+    }
+
+    protected List<SubCommand> getSubCommands() {
+        return this.subCommands;
     }
 
     public static void broadcastCommandMessage(CommandSender source, String message) {
