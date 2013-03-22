@@ -32,6 +32,7 @@ public abstract class SubCommand extends Command {
     /**
      * Gets the absolute root of this command, guaranteed to be a Command
      * @return The absolute root command
+     * @see #getRootCommand()
      */
     public Command getAbsoluteRootCommand() {
         Command root = this.rootCommand;
@@ -63,23 +64,4 @@ public abstract class SubCommand extends Command {
         return getRootCommand().testPermissionSilent(target) && super.testPermissionSilent(target);
     }
 
-    /* Override the CommandMap based registration methods to avoid inadvertently registering this as a normal
-       command
-    */
-    @Override
-    public boolean register(CommandMap commandMap) {
-        this.rootCommand.addSubCommand(this);
-        return true;
-    }
-
-    @Override
-    public boolean unregister(CommandMap commandMap) {
-        this.rootCommand.removeSubCommand(this);
-        return true;
-    }
-
-    @Override
-    public boolean isRegistered() {
-        return this.rootCommand.getSubCommands().contains(this);
-    }
 }
