@@ -1,11 +1,11 @@
 package org.bukkit.command;
 
+import org.bukkit.plugin.Plugin;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.bukkit.plugin.Plugin;
 
 public class PluginCommandYamlParser {
 
@@ -18,6 +18,12 @@ public class PluginCommandYamlParser {
             return pluginCmds;
         }
 
+        parseCommandMap(map, plugin, pluginCmds);
+
+        return pluginCmds;
+    }
+
+    private static void parseCommandMap(Map<String, Map<String, Object>> map, Plugin plugin, List<Command> commandList) {
         for (Entry<String, Map<String, Object>> entry : map.entrySet()) {
             Command newCmd = new PluginCommand(entry.getKey(), plugin);
             Object description = entry.getValue().get("description");
@@ -25,6 +31,7 @@ public class PluginCommandYamlParser {
             Object aliases = entry.getValue().get("aliases");
             Object permission = entry.getValue().get("permission");
             Object permissionMessage = entry.getValue().get("permission-message");
+            Object subCommands = entry.getValue().get("subcommands");
 
             if (description != null) {
                 newCmd.setDescription(description.toString());
@@ -56,8 +63,11 @@ public class PluginCommandYamlParser {
                 newCmd.setPermissionMessage(permissionMessage.toString());
             }
 
-            pluginCmds.add(newCmd);
+            if (subCommands != null && subCommands instanceof Map) {
+
+            }
+
+            commandList.add(newCmd);
         }
-        return pluginCmds;
     }
 }

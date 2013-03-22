@@ -15,8 +15,8 @@ public abstract class SubCommand extends Command {
 
     private Command rootCommand;
 
-    protected SubCommand(String name, String description, String usageMessage, List<String> aliases, Command rootCommand) {
-        super(name, description, usageMessage, aliases);
+    protected SubCommand(String name, Command rootCommand) {
+        super(name);
         this.rootCommand = rootCommand;
     }
 
@@ -27,6 +27,14 @@ public abstract class SubCommand extends Command {
      */
     public Command getRootCommand() {
         return this.rootCommand;
+    }
+
+    /**
+     * Sets the root command of this sub command, the root command may or may not be another sub command
+     * @param rootCommand The root command
+     */
+    public void setRootCommand(Command rootCommand) {
+        this.rootCommand = rootCommand;
     }
 
     /**
