@@ -5,7 +5,6 @@ import org.apache.commons.lang.Validate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 
 public class StringUtil {
 
@@ -52,8 +51,7 @@ public class StringUtil {
     }
 
     /**
-     * Performs a case insensitive union between two string lists, the actual case returned is determined by the first list. The second list
-     * will be altered.
+     * Performs a case insensitive union between two string lists, the actual case returned is determined by the first list
      *
      * @param list The first list
      * @param otherList The second list
@@ -67,14 +65,14 @@ public class StringUtil {
             return list;
         }
 
-        ListIterator<String> iterator = otherList.listIterator();
-        while (iterator.hasNext()) {
-            iterator.set(iterator.next().toLowerCase());
+        List<String> otherCopy = new ArrayList<String>(otherList.size());
+        for (String anOtherList : otherList) {
+            otherCopy.add(anOtherList.toLowerCase());
         }
 
         List<String> union = new ArrayList<String>();
         for (String element : list) {
-            if (otherList.contains(element.toLowerCase())) {
+            if (otherCopy.contains(element.toLowerCase())) {
                 union.add(element);
             }
         }
