@@ -345,6 +345,43 @@ public abstract class Command {
         this.subCommands.remove(command);
     }
 
+    /**
+     * Gets a sub command based on its name
+     * @param commandName The name of the sub command
+     * @return The sub command or null if there is no sub command under the name
+     */
+    public SubCommand getSubCommand(String commandName) {
+        Validate.notNull(commandName);
+        for (SubCommand subCommand : this.subCommands) {
+            if (subCommand.getName().equalsIgnoreCase(commandName) || subCommand.getAliases().contains(commandName.toLowerCase())) {
+                return subCommand;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets a sub command based on an array of command names that represent the next command name
+     * ['foo', 'bar', 'baz'] will return /command foo bar baz
+     * @param commands The commands
+     * @return The associated sub command or null if there is no sub command under those names
+     */
+    public SubCommand getSubCommand(String... commands) {
+        Validate.notEmpty(commands);
+
+        SubCommand lastCommand = this.getSubCommand(commands[0]);
+        for (int i = 1; i < commands.length; i++) {
+            SubCommand subCommand = lastCommand.getSubCommand(commands[i]);
+            if (subCommand == null) {
+                return null;
+            } else {
+                lastCommand = subCommand;
+            }
+        }
+
+        return lastCommand;
+    }
+
     protected List<SubCommand> getSubCommands() {
         return this.subCommands;
     }

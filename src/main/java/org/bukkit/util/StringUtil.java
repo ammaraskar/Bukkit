@@ -1,7 +1,11 @@
 package org.bukkit.util;
 
-import java.util.Collection;
 import org.apache.commons.lang.Validate;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
 
 public class StringUtil {
 
@@ -45,5 +49,35 @@ public class StringUtil {
             return false;
         }
         return string.substring(0, prefix.length()).equalsIgnoreCase(prefix);
+    }
+
+    /**
+     * Performs a case insensitive union between two string lists, the actual case returned is determined by the first list. The second list
+     * will be altered.
+     *
+     * @param list The first list
+     * @param otherList The second list
+     * @return The union of the two lists
+     */
+    public static List<String> caseInsensitiveUnion(List<String> list, List<String> otherList) {
+        if (list.isEmpty()) {
+            return otherList;
+        }
+        if (otherList.isEmpty()) {
+            return list;
+        }
+
+        ListIterator<String> iterator = otherList.listIterator();
+        while (iterator.hasNext()) {
+            iterator.set(iterator.next().toLowerCase());
+        }
+
+        List<String> union = new ArrayList<String>();
+        for (String element : list) {
+            if (otherList.contains(element.toLowerCase())) {
+                union.add(element);
+            }
+        }
+        return union;
     }
 }

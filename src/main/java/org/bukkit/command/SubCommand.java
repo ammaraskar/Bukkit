@@ -1,5 +1,7 @@
 package org.bukkit.command;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 // TODO: Improve these javadocs, I really suck at explaining in a concise manner
 
@@ -37,6 +39,28 @@ public abstract class SubCommand extends Command {
             root = ((SubCommand) root).getRootCommand();
         }
         return root;
+    }
+
+    /**
+     * Gets all root commands for this sub command
+     * @return A list of the root commands, the top level Command class is guaranteed to be in this list
+     */
+    public List<Command> getRootCommands() {
+        Command root = this.rootCommand;
+        List<Command> commands = new ArrayList<Command>();
+
+        while (root instanceof SubCommand) {
+            root = ((SubCommand) root).getRootCommand();
+            commands.add(root);
+        }
+        commands.add(root);
+        Collections.reverse(commands);
+        return commands;
+    }
+
+    @Override
+    public boolean testPermissionSilent(CommandSender target) {
+        return getRootCommand().testPermissionSilent(target) && super.testPermissionSilent(target);
     }
 
     /* Override the CommandMap based registration methods to avoid inadvertently registering this as a normal

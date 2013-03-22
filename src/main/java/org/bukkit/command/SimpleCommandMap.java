@@ -1,6 +1,10 @@
 package org.bukkit.command;
 
-import static org.bukkit.util.Java15Compat.Arrays_copyOfRange;
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.Validate;
+import org.bukkit.Server;
+import org.bukkit.command.defaults.*;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,10 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.Validate;
-import org.bukkit.Server;
-import org.bukkit.command.defaults.*;
-import org.bukkit.util.StringUtil;
+import static org.bukkit.util.Java15Compat.Arrays_copyOfRange;
 
 public class SimpleCommandMap implements CommandMap {
     private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
@@ -272,8 +273,35 @@ public class SimpleCommandMap implements CommandMap {
         String argLine = cmdLine.substring(spaceIndex + 1, cmdLine.length());
         String[] args = PATTERN_ON_SPACE.split(argLine, -1);
 
+        // Locate the last depth level of sub commands and get the one just above it, so we have all potential sub commands for the last argument
+        Command before;
+        if (args.length == 0) {
+            before = target;
+        } else {
+            before = target.getSubCommand(args).getRootCommand();
+        }
+
+        List<String> completions;
+        if (before.getSubCommands().size() == 0) {
+            completions = ImmutableList.of();
+        } else {
+            completions = new ArrayList<String>();
+            String lastWord = args[args.length - 1];
+            for (SubCommand subCommand : before.getSubCommands()) {
+                // Does the user have permission to this command
+                if (subCommand.testPermissionSilent(sender)) {
+                    // Does it actually match with the last word typed
+                    for (String alias : subCommand.getAliases()) {
+                        if (StringUtil.startsWithIgnoreCase(alias, lastWord)) {
+                            completions.add(alias);
+                        }
+                    }
+                }
+            }
+        }
+
         try {
-            return target.tabComplete(sender, commandName, args);
+            return StringUtil.caseInsensitiveUnion(target.tabComplete(sender, commandName, args), completions);
         } catch (CommandException ex) {
             throw ex;
         } catch (Throwable ex) {
